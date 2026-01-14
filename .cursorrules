@@ -1,0 +1,17 @@
+# Cursor Rules for lidar-craft
+
+## Python Execution
+- **ALWAYS use `uv run` to execute Python commands**
+- Never use `python`, `python3`, or `python -m` directly
+- Always prefix Python commands with `uv run`
+- Example: `uv run python script.py` or `uv run pytest`
+
+## Project Context
+- This project uses `uv` for Python package management
+- Dependencies are managed via `pyproject.toml` and `uv.lock`
+- Virtual environment is managed by `uv` (typically in `.venv/`)
+
+## Code Style
+- Follow Python best practices
+- Use type hints where appropriate
+- Maintain compatibility with Python 3.13+

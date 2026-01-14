@@ -22,12 +22,13 @@ def test_read_laz_file():
     if not laz_file.exists():
         pytest.skip(f"LAZ file not found: {laz_file}")
 
-    x, y, z = read_laz_file(str(laz_file))
+    x, y, z, classification = read_laz_file(str(laz_file))
 
     assert len(x) > 0
     assert len(y) > 0
     assert len(z) > 0
-    assert len(x) == len(y) == len(z)
+    assert len(classification) > 0
+    assert len(x) == len(y) == len(z) == len(classification)
 
 
 def test_create_heightmap():
@@ -39,10 +40,12 @@ def test_create_heightmap():
     x = np.random.rand(n_points) * 1000
     y = np.random.rand(n_points) * 1000
     z = np.random.rand(n_points) * 100 + 50  # Elevation between 50-150
+    classification = np.ones(n_points, dtype=np.uint8)  # Default to unclassified
 
-    heightmap = create_heightmap(x, y, z, resolution=64)
+    heightmap, classification_map = create_heightmap(x, y, z, classification, resolution=64)
 
     assert heightmap.shape == (64, 64)
+    assert classification_map.shape == (64, 64)
     assert not np.isnan(heightmap).any()
 
 
@@ -70,15 +73,15 @@ def test_full_conversion(tmp_path):
         pytest.skip(f"LAZ file not found: {laz_file}")
 
     # Read LAZ file
-    x, y, z = read_laz_file(str(laz_file))
+    x, y, z, classification = read_laz_file(str(laz_file))
 
     # Create a small heightmap for testing (lower resolution for speed)
-    heightmap = create_heightmap(x, y, z, resolution=128)
+    heightmap, classification_map = create_heightmap(x, y, z, classification, resolution=128)
 
     # Generate world in temporary directory
     output_dir = tmp_path / "output"
     generator = MinecraftWorldGenerator("test_world", output_dir=str(output_dir))
-    generator.generate_world(heightmap)
+    generator.generate_world(heightmap, classification_map)
 
     # Verify world files were created
     world_dir = output_dir / "test_world"
